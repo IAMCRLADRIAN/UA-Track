@@ -247,4 +247,7 @@
     border-bottom-color: var(--primary);
 }
 
-    
+.form-control::placeholder {
+    color: white;
+}
+  
