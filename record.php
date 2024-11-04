@@ -152,6 +152,80 @@
                     </table>
                   </div>
                 </div>
+
+                <div class="container-fluid mt-4" >
+                  <div class="row mb-2">
+                      <div class="col">
+                          <label for="dayOfWeek">Day of Week</label>
+                          <select id="dayOfWeek" class="form-select">
+                              <option>All</option>
+                              <!-- Add other days if needed -->
+                          </select>
+                      </div>
+                      <div class="col">
+                          <label for="month">Month</label>
+                          <select id="month" class="form-select">
+                              <option>All</option>
+                              <!-- Add months if needed -->
+                          </select>
+                      </div>
+                      <div class="col">
+                          <label for="show">Show</label>
+                          <select id="show" class="form-select">
+                              <option>All</option>
+                              <option>Senior High <br>
+                              School</option>
+                              <option>BSIT</option>
+                              <option>Psychology</option>
+                              <option>Nursing and Pharmacy</option>
+                              <option>Engineering</option>
+                              <option>Accountancy</option>
+                              <option>Business Administration</option>
+                              <option>Education</option>
+                              <option>Criminology</option>
+                              <option>Tourism and Hospitality Management</option>
+                              <option>Arts and Communication</option>
+                              <option>Total</option>
+                          </select>
+                      </div>
+                  </div>
+                  
+                  <table class="table table-bordered text-center">
+                      <thead class="table-light">
+                          <tr>
+                              <th>SHS</th>
+                              <th>BSIT</th>
+                              <th>Psychology</th>
+                              <th>Nursing and <br> Pharmacy</th>
+                              <th>Engineering</th>
+                              <th>Business Administration</th>
+                              <th>Accountancy</th>
+                              <th>Education</th>
+                              <th>Criminology</th>
+                              <th>Tourism and <br> Hospitality Management</th>
+                              <th>Arts and Communication</th>
+                              <th>Total</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr>
+                              <td>0</td>
+                              <td>0</td>
+                              <td>0</td>
+                              <td>0</td>
+                              <td>0</td>
+                              <td>0</td>
+                              <td>0</td>
+                              <td>0</td>
+                              <td>0</td>
+                              <td>0</td>
+                              <td>0</td>
+                              <td>0</td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </div>
+              
               </div>
             <!-- Form End -->
         </div>

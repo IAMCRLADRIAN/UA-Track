@@ -38,13 +38,13 @@
         <div class="sidebar pe-4 pb-3" >
             <nav class="navbar bg-transparent navbar-dark">
                 <div class="navbar-nav w-100"> <br>
-                    <a href="index.html" class="nav-item nav-link active">
+                    <a href="index.php" class="nav-item nav-link active">
                         <i class="bi bi-display-fill" style="color: #ffffff"></i>Dashboard</a>
-                    <a href="record.html" class="nav-item nav-link">
+                    <a href="record.php" class="nav-item nav-link">
                         <i class="bi bi-clipboard2-data-fill" style="color: #ffffff"></i> Patient's Record</a>
-                    <a href="inventory.html" class="nav-item nav-link">
+                    <a href="inventory.php" class="nav-item nav-link">
                         <i class="bi bi-bookshelf" style="color: #ffffff"></i> Inventory</a>
-                    <a href="graph.html" class="nav-item nav-link">
+                    <a href="graph.php" class="nav-item nav-link">
                         <i class="bi bi-pie-chart-fill" style="color: #ffffff"></i> Patient's Count</a>
                 </div>
             </nav>
@@ -54,34 +54,7 @@
         <!-- Content Start -->
         <div class="content" >
             <!-- Navbar Start -->
-            <!-- Navbar Start -->
-            <nav class="navbar navbar-expand bg-warning navbar-dark sticky-top px-4 py-0">
-                <a href="index.html" class="navbar-brand d-flex d-lg-none me-4">
-                    <img src="img\UAH.png" alt="University of the Assumption" height="40">
-                </a>
-                <a href="index.html" class="navbar-brand d-none d-lg-block">
-                    <img src="img\UAH.png" alt="University of the Assumption" height="80" width="auto">
-                    <span class="text-dark">University of the Assumption College Clinic</span>
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                 data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" 
-                 aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <div class="d-flex ms-auto align-items-center">
-                        <div class="nav-item me-2">
-                            <a class="nav-link">
-                                <i class="fa fa-user me-2" style="color: #000000;"></i>
-                                <span class="d-none d-lg-inline-flex" style="color: #000000;">Name display</span>
-                            </a>
-                        </div>
-                        <button class="btn btn-dark">
-                            <i class="fas fa-sign-out-alt" style="color: #ffffff;"> Sign out</i>
-                        </button>
-                    </div>
-                </div>
-            </nav>   
+            <?php include('navbar.php'); ?> 
             <!-- Navbar End -->
 
             <!-- Patients Profile Section Start -->
@@ -155,19 +128,8 @@
         <!-- Content End -->
     </div>
 
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="lib/chart/chart.min.js"></script>
-    <script src="lib/easing/easing.min.js"></script>
-    <script src="lib/waypoints/waypoints.min.js"></script>
-    <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-    <script src="lib/tempusdominus/js/moment.min.js"></script>
-    <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
-    <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
-
-    <!-- Template Javascript -->
-    <script src="js/main.js"></script>
+    <?php include('footer.php'); ?>
+    <script src="main.js"></script>
 </body>
 
 </html>
