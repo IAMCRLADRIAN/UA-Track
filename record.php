@@ -159,14 +159,31 @@
                           <label for="dayOfWeek">Day of Week</label>
                           <select id="dayOfWeek" class="form-select">
                               <option>All</option>
-                              <!-- Add other days if needed -->
+                              <option>Monday</option>
+                              <option>Tuesday</option>
+                              <option>Wednesday</option>
+                              <option>Thursday</option>
+                              <option>Friday</option>
+                              <option>Saturday</option>
+                              <option>Sunday</option>
                           </select>
                       </div>
                       <div class="col">
                           <label for="month">Month</label>
                           <select id="month" class="form-select">
                               <option>All</option>
-                              <!-- Add months if needed -->
+                              <option>January</option>
+                              <option>Febuary</option>
+                              <option>March</option>
+                              <option>April</option>
+                              <option>May</option>
+                              <option>June</option>
+                              <option>July</option>
+                              <option>August</option>
+                              <option>September</option>
+                              <option>October</option>
+                              <option>November</option>
+                              <option>December</option>
                           </select>
                       </div>
                       <div class="col">
