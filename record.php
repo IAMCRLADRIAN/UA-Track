@@ -1,3 +1,28 @@
+<?php
+// Database configuration
+$host = "localhost";
+$username = "your_username";
+$password = "your_password";
+$database = "clinic_dashboard";
+
+// Create a connection
+$conn = new mysqli($host, $username, $password, $database);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Fetch data from visits table with student and department info
+$sql = "SELECT students.first_name, students.last_name, visits.visit_date, departments.department_name, 
+               visits.treatment, visits.complaint, visits.nurse
+        FROM visits 
+        JOIN students ON visits.student_id = students.student_id
+        JOIN departments ON students.department_id = departments.department_id";
+$result = $conn->query($sql);
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -266,3 +291,8 @@
 </body>
 
 </html>
+
+<?php
+// Close the connection
+$conn->close();
+?>
