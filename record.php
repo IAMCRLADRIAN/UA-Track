@@ -1,28 +1,3 @@
-<?php
-// Database configuration
-$host = "localhost";
-$username = "your_username";
-$password = "your_password";
-$database = "clinic_dashboard";
-
-// Create a connection
-$conn = new mysqli($host, $username, $password, $database);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Fetch data from visits table with student and department info
-$sql = "SELECT students.first_name, students.last_name, visits.visit_date, departments.department_name, 
-               visits.treatment, visits.complaint, visits.nurse
-        FROM visits 
-        JOIN students ON visits.student_id = students.student_id
-        JOIN departments ON students.department_id = departments.department_id";
-$result = $conn->query($sql);
-?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -72,10 +47,9 @@ $result = $conn->query($sql);
         <div class="sidebar pe-4 pb-3" >
             <nav class="navbar bg-transparent navbar-dark">
                 <div class="navbar-nav w-100"><br>
-                    <a href="index.html" class="nav-item nav-link active"><i class="bi bi-display-fill" style="color: #ffffff"></i>Dashboard</a>
-                    <a href="record.html" class="nav-item nav-link"><i class="bi bi-clipboard2-data-fill" style="color: #ffffff"></i> Patient's Record</a>
-                    <a href="inventory.html" class="nav-item nav-link"><i class="bi bi-bookshelf" style="color: #ffffff"></i> Inventory</a>
-                    <a href="graph.html" class="nav-item nav-link"><i class="bi bi-pie-chart-fill" style="color: #ffffff"></i> Patient's Count</a>
+                    <a href="index.php" class="nav-item nav-link active"><i class="bi bi-display-fill" style="color: #ffffff"></i>Dashboard</a>
+                    <a href="record.php" class="nav-item nav-link"><i class="bi bi-clipboard2-data-fill" style="color: #ffffff"></i> Patient's Record</a>
+                    <a href="inventory.php" class="nav-item nav-link"><i class="bi bi-bookshelf" style="color: #ffffff"></i> Inventory</a>
                 </div>
             </nav>
         </div>
@@ -143,37 +117,9 @@ $result = $conn->query($sql);
                           <th scope="col" style="padding-left: 40px; color: #ffffff;">Name</th>
                           <th scope="col" style="padding-left: 40px; color: #ffffff">Date</th>
                           <th scope="col" style="padding-left: 40px; color: #ffffff">Department</th>
-                          <th scope="col" style="padding-left: 40px; color: #ffffff">Treatment</th>
-                          <th scope="col" style="padding-left: 40px; color: #ffffff">Complaints</th>
-                          <th scope="col" style="padding-left: 40px; color: #ffffff">Nurse</th>
+                          <th scope="col" style="padding-left: 40px; color: #ffffff">Action</th>
                         </tr>
                       </thead>
-                      <tbody>
-                        <tr>
-                          <th scope="col" style="padding-left: 40px;color: black; "></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                        </tr>
-                        <tr>
-                          <th scope="col" style="padding-left: 40px;color: black; "></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                        </tr>
-                        <tr>
-                          <th scope="col" style="padding-left: 40px;color: black; "></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                          <th scope="col" style="padding-left: 40px; color: black"></th>
-                        </tr>
-                      </tbody>
                     </table>
                   </div>
                 </div>
@@ -291,8 +237,3 @@ $result = $conn->query($sql);
 </body>
 
 </html>
-
-<?php
-// Close the connection
-$conn->close();
-?>

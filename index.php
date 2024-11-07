@@ -42,14 +42,6 @@ include('header.php');
                             </div>
                         </a>
                     </div>
-                    <div class="col-sm-12 col-md-6 col-xl-4">
-                        <a href="graph.php" class="text-decoration-none">
-                            <div class="h-100 bg-dark rounded p-4 text-center">
-                                <h6 class="mb-0" style="color: white">Patient's Count</h6>
-                                <i class="bi bi-pie-chart-fill" style="font-size: 5rem; color: #ffffff"></i>
-                            </div>
-                        </a>
-                    </div>
                 </div>
             </div>
 

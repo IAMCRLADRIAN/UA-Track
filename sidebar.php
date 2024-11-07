@@ -13,7 +13,6 @@
             <a href="index.php" class="nav-item nav-link active"><i class="bi bi-display-fill" style="color: #ffffff"></i>Dashboard</a>
             <a href="record.php" class="nav-item nav-link"><i class="bi bi-clipboard2-data-fill" style="color: #ffffff"></i> Patient's Record</a>
             <a href="inventory.php" class="nav-item nav-link"><i class="bi bi-bookshelf" style="color: #ffffff"></i> Inventory</a>
-            <a href="graph.php" class="nav-item nav-link"><i class="bi bi-pie-chart-fill" style="color: #ffffff"></i> Report</a>
         </div>
     </nav>
 </div>
