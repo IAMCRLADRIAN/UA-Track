@@ -219,6 +219,102 @@
         </div>
         <!-- Content End -->
 
+        <div class="modal fade" id="addFormModal" tabindex="-1" aria-labelledby="addFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFormModalLabel">Fill Up the Form</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addForm">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="department" class="form-label">Department</label>
+                        <select class="form-select" id="department" required>
+                        <option value="">Select Department</option>
+                        <option value="Senior High School">Senior High School</option>
+                        <option value="BSIT">BSIT</option>
+                        <option value="Psychology">Psychology</option>
+                        <option value="Nursing and Pharmacy">Nursing and Pharmacy</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Accountancy">Accountancy</option>
+                        <option value="Business Administration">Business Administration</option>
+                        <option value="Education">Education</option>
+                        <option value="Criminology">Criminology</option>
+                        <option value="Tourism and Hospitality Management">Tourism and Hospitality Management</option>
+                        <option value="Arts and Communication">Arts and Communication</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="date" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="date" required>
+                </div>
+                
+                <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Set the date input field to the current date
+                    const dateInput = document.getElementById('date');
+                    const currentDate = new Date().toISOString().split('T')[0];  // Get current date in YYYY-MM-DD format
+                    dateInput.value = currentDate;  // Set the input value to today's date
+                    });
+                    </script>
+                    <div class="mb-3">
+                        <label for="nurse" class="form-label">Year & Section</label>
+                        <input type="text" class="form-control" id="yns" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nurse" class="form-label">Complaints</label>
+                        <input type="text" class="form-control" id="complaints" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nurse" class="form-label">Treatment</label>
+                        <input type="text" class="form-control" id="treatment" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nurse" class="form-label">Nurse</label>
+                        <input type="text" class="form-control" id="nurse" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addButton = document.querySelector('.btn-outline-secondary'); // ADD button
+        const modal = new bootstrap.Modal(document.getElementById('addFormModal')); // Modal
+        const form = document.getElementById('addForm'); // Form inside modal
+
+        // Show modal when ADD button is clicked
+        addButton.addEventListener('click', function() {
+            modal.show();
+        });
+
+        // Handle form submission
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent page reload
+
+            // Get form data
+            const name = document.getElementById('name').value;
+            const department = document.getElementById('department').value;
+            const date = document.getElementById('date').value;
+            const nurse = document.getElementById('nurse').value;
+
+            // Log the data to the console (you can replace this with AJAX or other handling)
+            console.log(`Name: ${name}, Department: ${department}, Date: ${date}, Nurse: ${nurse}`);
+
+            // Clear form and hide modal
+            form.reset();
+            modal.hide();
+        });
+    });
+</script>
 
 
     <!-- JavaScript Libraries -->
