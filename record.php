@@ -111,15 +111,21 @@
                     </div>
                   </div>
                   <div class="table-responsive mt-3">
-                    <table class="table table-striped table-hover">
-                      <thead>
-                        <tr style="background-color: blue;">
-                          <th scope="col" style="padding-left: 40px; color: #ffffff;">Name</th>
-                          <th scope="col" style="padding-left: 40px; color: #ffffff">Date</th>
-                          <th scope="col" style="padding-left: 40px; color: #ffffff">Department</th>
-                          <th scope="col" style="padding-left: 40px; color: #ffffff">Action</th>
-                        </tr>
-                      </thead>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr style="background-color: blue;">
+                <th scope="col" style="padding-left: 40px; color: #ffffff;">Name</th>
+                <th scope="col" style="padding-left: 40px; color: #ffffff">Date</th>
+                <th scope="col" style="padding-left: 40px; color: #ffffff">Department</th>
+                <th scope="col" style="padding-left: 40px; color: #ffffff">Action</th>
+            </tr>
+        </thead>
+        <tbody id="dataTableBody">
+            <!-- New rows will be added here -->
+        </tbody>
+    </table>
+</div>
+
                     </table>
                   </div>
                 </div>
@@ -223,7 +229,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addFormModalLabel">Fill Up the Form</h5>
+            <h5 class="modal-title" id="addFormModalLabel" style="color: black;">Fill Up Form</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -279,7 +285,88 @@
                         <input type="text" class="form-control" id="nurse" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
+                    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addButton = document.querySelector('.btn-outline-secondary'); // ADD button
+    const modal = new bootstrap.Modal(document.getElementById('addFormModal')); // Modal
+    const form = document.getElementById('addForm'); // Form inside modal
+    const dataTableBody = document.getElementById('dataTableBody'); // Table body for new rows
+
+    // Show modal when ADD button is clicked
+    addButton.addEventListener('click', function() {
+        modal.show();
+    });
+
+    // Handle form submission
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent page reload
+
+        // Get form data
+        const name = document.getElementById('name').value;
+        const department = document.getElementById('department').value;
+        const date = document.getElementById('date').value;
+        const yns = document.getElementById('yns').value;
+        const complaints = document.getElementById('complaints').value;
+        const treatment = document.getElementById('treatment').value;
+        const nurse = document.getElementById('nurse').value;
+
+// Create a new table row with form data and add View button
+const newRow = document.createElement('tr');
+newRow.innerHTML = `
+    <td style="padding-left: 40px; color: white">${name}</td>
+    <td style="padding-left: 40px; color: white">${date}</td>
+    <td style="padding-left: 40px; color: white">${department}</td>
+    <td style="padding-left: 40px; color: white">
+        <button class="btn btn-info btn-sm view-button">View</button>
+        <button class="btn btn-danger btn-sm delete-button">Delete</button>
+    </td>
+`;
+
+// Append the new row to the table body
+dataTableBody.appendChild(newRow);
+
+// Function to handle the View button click
+function handleViewClick() {
+    // Display all form data in an alert or modal
+    alert(
+        `Name: ${name}\n` +
+        `Date: ${date}\n` +
+        `Department: ${department}\n` +
+        `Y/N: ${yns}\n` +
+        `Complaints: ${complaints}\n` +
+        `Treatment: ${treatment}\n` +
+        `Nurse: ${nurse}`
+    );
+}
+
+// Function to handle the Delete button click
+function handleDeleteClick() {
+    dataTableBody.removeChild(newRow); // Remove the row from the table
+}
+
+// Attach the functions to the respective buttons
+newRow.querySelector('.view-button').addEventListener('click', handleViewClick);
+newRow.querySelector('.delete-button').addEventListener('click', handleDeleteClick);
+
+
+        // Append the new row to the table body
+        dataTableBody.appendChild(newRow);
+
+        // Clear form and hide modal
+        form.reset();
+        modal.hide();
+    });
+});
+
+</script>
+
                 </form>
+                <!-- Add a section to show the submitted data -->
+<div id="submittedData" style="margin-top: 20px; color: #333;">
+    <h5>Submitted Data:</h5>
+    <div id="result"></div> <!-- This will hold the result -->
+</div>
+
             </div>
         </div>
     </div>
