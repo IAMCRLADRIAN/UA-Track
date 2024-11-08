@@ -290,11 +290,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const addButton = document.querySelector('.btn-outline-secondary'); // ADD button
     const modal = new bootstrap.Modal(document.getElementById('addFormModal')); // Modal
     const form = document.getElementById('addForm'); // Form inside modal
-    const dataTableBody = document.getElementById('dataTableBody'); // Table body for new rows
+    const dateInput = document.getElementById('date'); // Date input
 
     // Show modal when ADD button is clicked
     addButton.addEventListener('click', function() {
         modal.show();
+        // Reset date input to current date when modal opens
+        const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+        dateInput.value = currentDate; // Set the input value to today's date
     });
 
     // Handle form submission
@@ -310,47 +313,44 @@ document.addEventListener('DOMContentLoaded', function() {
         const treatment = document.getElementById('treatment').value;
         const nurse = document.getElementById('nurse').value;
 
-// Create a new table row with form data and add View button
-const newRow = document.createElement('tr');
-newRow.innerHTML = `
-    <td style="padding-left: 40px; color: white">${name}</td>
-    <td style="padding-left: 40px; color: white">${date}</td>
-    <td style="padding-left: 40px; color: white">${department}</td>
-    <td style="padding-left: 40px; color: white">
-        <button class="btn btn-info btn-sm view-button">View</button>
-        <button class="btn btn-danger btn-sm delete-button">Delete</button>
-    </td>
-`;
-
-// Append the new row to the table body
-dataTableBody.appendChild(newRow);
-
-// Function to handle the View button click
-function handleViewClick() {
-    // Display all form data in an alert or modal
-    alert(
-        `Name: ${name}\n` +
-        `Date: ${date}\n` +
-        `Department: ${department}\n` +
-        `Y/N: ${yns}\n` +
-        `Complaints: ${complaints}\n` +
-        `Treatment: ${treatment}\n` +
-        `Nurse: ${nurse}`
-    );
-}
-
-// Function to handle the Delete button click
-function handleDeleteClick() {
-    dataTableBody.removeChild(newRow); // Remove the row from the table
-}
-
-// Attach the functions to the respective buttons
-newRow.querySelector('.view-button').addEventListener('click', handleViewClick);
-newRow.querySelector('.delete-button').addEventListener('click', handleDeleteClick);
-
+        // Create a new table row with form data and add View button
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td style="padding-left: 40px; color: white">${name}</td>
+            <td style="padding-left: 40px; color: white">${date}</td>
+            <td style="padding-left: 40px; color: white">${department}</td>
+            <td style="padding-left: 40px; color: white">
+                <button class="btn btn-info btn-sm view-button">View</button>
+                <button class="btn btn-danger btn-sm delete-button">Delete</button>
+            </td>
+        `;
 
         // Append the new row to the table body
+        const dataTableBody = document.getElementById('dataTableBody');
         dataTableBody.appendChild(newRow);
+
+        // Function to handle the View button click
+        function handleViewClick() {
+            // Display all form data in an alert or modal
+            alert(
+                `Name: ${name}\n` +
+                `Date: ${date}\n` +
+                `Department: ${department}\n` +
+                `Y/N: ${yns}\n` +
+                `Complaints: ${complaints}\n` +
+                `Treatment: ${treatment}\n` +
+                `Nurse: ${nurse}`
+            );
+        }
+
+        // Function to handle the Delete button click
+        function handleDeleteClick() {
+            dataTableBody.removeChild(newRow); // Remove the row from the table
+        }
+
+        // Attach the functions to the respective buttons
+        newRow.querySelector('.view-button').addEventListener('click', handleViewClick);
+        newRow.querySelector('.delete-button').addEventListener('click', handleDeleteClick);
 
         // Clear form and hide modal
         form.reset();
