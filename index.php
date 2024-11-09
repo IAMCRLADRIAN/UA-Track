@@ -64,9 +64,12 @@ include('header.php');
                                 <a href="#">Show All</a>
                             </div>
                             <div class="d-flex mb-2">
-                                <input class="form-control bg-primary border-0" type="text" placeholder="Enter task">
-                                <button type="button" class="btn btn-primary ms-2">Add</button>
+                                <input id="taskInput" class="form-control bg-primary border-0" type="text" placeholder="Enter task">
+                                <button id="addTaskButton" type="button" class="btn btn-primary ms-2">Add</button>
                             </div>
+                            <ul id="taskList" class="list-group">
+                                <!-- To-Do items will be dynamically added here -->
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -77,5 +80,95 @@ include('header.php');
 
     <?php include('footer.php'); ?>
     <script src="main.js"></script>
+
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@5.11.2/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@5.11.2/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@5.11.2/main.min.js"></script>
+
+    <script>
+        // DOM Elements for Task List
+        const taskInput = document.getElementById('taskInput');
+        const addTaskButton = document.getElementById('addTaskButton');
+        const taskList = document.getElementById('taskList');
+
+        // Add Task Function
+        function addTask() {
+            const taskText = taskInput.value.trim();
+
+            if (taskText !== "") {
+                // Create new task list item
+                const taskItem = document.createElement('li');
+                taskItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                taskItem.innerHTML = `
+                    <span class="task-text">${taskText}</span>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-success btn-sm complete-btn">Complete</button>
+                        <button class="btn btn-danger btn-sm delete-btn">Delete</button>
+                    </div>
+                `;
+
+                // Append task item to the list
+                taskList.appendChild(taskItem);
+
+                // Clear input field
+                taskInput.value = "";
+
+                // Event listener for complete button
+                const completeBtn = taskItem.querySelector('.complete-btn');
+                completeBtn.addEventListener('click', function() {
+                    taskItem.classList.toggle('bg-success');
+                    const taskTextElement = taskItem.querySelector('.task-text');
+                    // Change text color to white when task is complete
+                    taskTextElement.style.color = taskItem.classList.contains('bg-success') ? 'white' : 'black';
+                });
+
+                // Event listener for delete button
+                const deleteBtn = taskItem.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', function() {
+                    taskList.removeChild(taskItem);
+                });
+            }
+        }
+
+        // Add task on button click
+        addTaskButton.addEventListener('click', addTask);
+
+        // Add task on Enter key press
+        taskInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // FullCalendar Setup
+        document.addEventListener('DOMContentLoaded', function() {
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: ['dayGrid', 'interaction'],
+                dateClick: function(info) {
+                    const date = info.dateStr;
+                    const eventTitle = prompt("Add a note for " + date);
+                    if (eventTitle) {
+                        // Add a note to the clicked date
+                        calendar.addEvent({
+                            title: eventTitle,
+                            start: date,
+                            allDay: true,
+                            editable: true
+                        });
+                    }
+                },
+                events: [
+                    {
+                        title: 'Sample Event',
+                        start: '2024-11-10',
+                        allDay: true
+                    }
+                ]
+            });
+            calendar.render();
+        });
+    </script>
 </body>
 </html>
