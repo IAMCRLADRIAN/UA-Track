@@ -359,13 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 </script>
-
                 </form>
-                <!-- Add a section to show the submitted data -->
-<div id="submittedData" style="margin-top: 20px; color: #333;">
-    <h5>Submitted Data:</h5>
-    <div id="result"></div> <!-- This will hold the result -->
-</div>
 
             </div>
         </div>
