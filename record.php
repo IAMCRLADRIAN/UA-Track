@@ -1,3 +1,26 @@
+<?php
+
+include 'db_connection.php';
+
+
+try {
+    $sql = "
+        SELECT Visits.VisitID, Students.FirstName, Students.LastName, Departments.Name AS DepartmentName, 
+               Visits.VisitDate, Visits.Reason
+        FROM Visits
+        JOIN Students ON Visits.StudentID = Students.StudentID
+        JOIN Departments ON Visits.DepartmentID = Departments.DepartmentID
+        ORDER BY Visits.VisitDate DESC;
+    ";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+
+    
+    $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Error fetching records: " . $e->getMessage());
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -87,8 +110,39 @@
                 </div>
             </nav>   
             <!-- Navbar End -->
+            <h1>Clinic Dashboard - Visit Records</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Visit ID</th>
+            <th>Student Name</th>
+            <th>Department</th>
+            <th>Visit Date</th>
+            <th>Reason</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php 
+        if (!empty($records)): ?>
+            <?php foreach ($records as $record): ?>
+                <tr>
+                    <td><?= htmlspecialchars($record['VisitID']) ?></td>
+                    <td><?= htmlspecialchars($record['FirstName'] . " " . $record['LastName']) ?></td>
+                    <td><?= htmlspecialchars($record['DepartmentName']) ?></td>
+                    <td><?= htmlspecialchars($record['VisitDate']) ?></td>
+                    <td><?= htmlspecialchars($record['Reason']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <tr>
+                <td colspan="5">No records found.</td>
+            </tr>
+        <?php endif; ?>
+    </tbody>
+</table>
+</div>
 
-
+</div>
             <!-- Form Start -->
             <div class="container-fluid pt-4 px-4">
                 <div class="rounded p-4" style="background-color: grey">
