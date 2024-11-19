@@ -1,10 +1,58 @@
 <?php
-// Include necessary files (CSS, JavaScript, and other dependencies)
-include('header.php');
+session_start(); // Start session to store tasks
+
+// Initialize tasks array in session if not already set
+if (!isset($_SESSION['tasks'])) {
+    $_SESSION['tasks'] = [];
+}
+
+// Add task logic (submit form with POST)
+if (isset($_POST['addTask'])) {
+    $taskText = trim($_POST['taskInput']);
+    if ($taskText !== "") {
+        $_SESSION['tasks'][] = ['task' => $taskText, 'completed' => false];
+        // Redirect to avoid resubmission on refresh
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit(); // Ensure no further code is executed
+    }
+}
+
+// Mark task as completed
+if (isset($_GET['complete'])) {
+    $index = (int)$_GET['complete'];
+    if (isset($_SESSION['tasks'][$index])) {
+        $_SESSION['tasks'][$index]['completed'] = true;
+    }
+    // Redirect after completing a task
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+// Delete task
+if (isset($_GET['delete'])) {
+    $index = (int)$_GET['delete'];
+    if (isset($_SESSION['tasks'][$index])) {
+        unset($_SESSION['tasks'][$index]);
+        $_SESSION['tasks'] = array_values($_SESSION['tasks']); // Reindex array
+    }
+    // Redirect after deleting a task
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+// Pagination setup: Limit to 6 entries per page
+$tasksPerPage = 6; // Limit to 6 tasks per page
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$totalTasks = count($_SESSION['tasks']);
+$totalPages = ceil($totalTasks / $tasksPerPage);
+$startIndex = ($page - 1) * $tasksPerPage;
+$tasksToShow = array_slice($_SESSION['tasks'], $startIndex, $tasksPerPage);
 ?>
 
-<body>
-    <div class="container-fluid position-relative d-flex p-0">
+<?php include('header.php'); ?>
+
+<body style="overflow: hidden;"> <!-- Add this line to prevent scrollbars -->
+    <div class="container-fluid position-relative d-flex p-0" style="height: 100vh; overflow: hidden;">
         <!-- Spinner Start -->
         <div id="spinner" class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
             <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
@@ -18,7 +66,7 @@ include('header.php');
         <!-- Sidebar End -->
 
         <!-- Content Start -->
-        <div class="content">
+        <div class="content" style="overflow-y: auto; height: 100%; padding-bottom: 50px;">
             <!-- Navbar Start -->
             <?php include('navbar.php'); ?>
             <!-- Navbar End -->
@@ -46,13 +94,12 @@ include('header.php');
             </div>
 
             <!-- Calendar and TO DO Task Start -->
-            <div class="container-fluid pt-4 px-4 bg-container">
+            <div class="container-fluid pt-4 px-4 bg-container" style="max-height: calc(100vh - 200px); overflow-y: auto;">
                 <div class="row g-4">
                     <div class="col-sm-12 col-md-6 col-xl-4">
                         <div class="h-100 bg-dark rounded p-4">
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h6 class="bi bi-calendar3 mb-0"> Calendar</h6>
-                                <a href="#">Show All</a>
                             </div>
                             <div id="calendar"></div>
                         </div>
@@ -61,15 +108,44 @@ include('header.php');
                         <div class="h-100 bg-dark rounded p-4">
                             <div class="d-flex align-items-center justify-content-between mb-4">
                                 <h6 class="bi bi-list-task mb-0"> To Do List</h6>
-                                <a href="#">Show All</a>
                             </div>
-                            <div class="d-flex mb-2">
-                                <input id="taskInput" class="form-control bg-primary border-0" type="text" placeholder="Enter task">
-                                <button id="addTaskButton" type="button" class="btn btn-primary ms-2">Add</button>
-                            </div>
+                            <form method="POST">
+                                <div class="d-flex mb-2">
+                                    <input id="taskInput" class="form-control bg-primary border-0" type="text" name="taskInput" placeholder="Enter task" required>
+                                    <button id="addTaskButton" type="submit" name="addTask" class="btn btn-primary ms-2">Add</button>
+                                </div>
+                            </form>
                             <ul id="taskList" class="list-group">
-                                <!-- To-Do items will be dynamically added here -->
+                                <?php foreach ($tasksToShow as $index => $task): ?>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center <?= $task['completed'] ? 'bg-success' : '' ?>">
+                                        <span class="task-text" style="color: <?= $task['completed'] ? 'white' : 'black' ?>"><?= htmlspecialchars($task['task']) ?></span>
+                                        <div class="d-flex gap-2">
+                                            <?php if (!$task['completed']): ?>
+                                                <a href="?complete=<?= $index ?>" class="btn btn-success btn-sm">Complete</a>
+                                            <?php endif; ?>
+                                            <a href="?delete=<?= $index ?>" class="btn btn-danger btn-sm">Delete</a>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
                             </ul>
+
+                            <!-- Pagination Links with Page Numbers and "Entries" Display -->
+                            <div class="d-flex justify-content-between mt-3">
+                                <?php if ($totalPages > 1): ?> <!-- Only show pagination if more than 1 page -->
+                                    <?php if ($page > 1): ?>
+                                        <a href="?page=<?= $page - 1 ?>" class="btn btn-secondary">Previous</a>
+                                    <?php endif; ?>
+
+                                    <!-- Display Current Page, Total Pages, and Entries Per Page -->
+                                    <span class="align-self-center">
+                                        Page <?= $page ?> of <?= $totalPages ?> (<?= $tasksPerPage ?> entries per page)
+                                    </span>
+
+                                    <?php if ($page < $totalPages): ?>
+                                        <a href="?page=<?= $page + 1 ?>" class="btn btn-secondary">Next</a>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -79,7 +155,6 @@ include('header.php');
     </div>
 
     <?php include('footer.php'); ?>
-    <script src="main.js"></script>
 
     <!-- FullCalendar JS -->
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@5.11.2/main.min.js"></script>
@@ -87,60 +162,6 @@ include('header.php');
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@5.11.2/main.min.js"></script>
 
     <script>
-        // DOM Elements for Task List
-        const taskInput = document.getElementById('taskInput');
-        const addTaskButton = document.getElementById('addTaskButton');
-        const taskList = document.getElementById('taskList');
-
-        // Add Task Function
-        function addTask() {
-            const taskText = taskInput.value.trim();
-
-            if (taskText !== "") {
-                // Create new task list item
-                const taskItem = document.createElement('li');
-                taskItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
-                taskItem.innerHTML = `
-                    <span class="task-text">${taskText}</span>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-success btn-sm complete-btn">Complete</button>
-                        <button class="btn btn-danger btn-sm delete-btn">Delete</button>
-                    </div>
-                `;
-
-                // Append task item to the list
-                taskList.appendChild(taskItem);
-
-                // Clear input field
-                taskInput.value = "";
-
-                // Event listener for complete button
-                const completeBtn = taskItem.querySelector('.complete-btn');
-                completeBtn.addEventListener('click', function() {
-                    taskItem.classList.toggle('bg-success');
-                    const taskTextElement = taskItem.querySelector('.task-text');
-                    // Change text color to white when task is complete
-                    taskTextElement.style.color = taskItem.classList.contains('bg-success') ? 'white' : 'black';
-                });
-
-                // Event listener for delete button
-                const deleteBtn = taskItem.querySelector('.delete-btn');
-                deleteBtn.addEventListener('click', function() {
-                    taskList.removeChild(taskItem);
-                });
-            }
-        }
-
-        // Add task on button click
-        addTaskButton.addEventListener('click', addTask);
-
-        // Add task on Enter key press
-        taskInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                addTask();
-            }
-        });
-
         // FullCalendar Setup
         document.addEventListener('DOMContentLoaded', function() {
             const calendarEl = document.getElementById('calendar');
