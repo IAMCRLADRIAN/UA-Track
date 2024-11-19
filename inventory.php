@@ -1,4 +1,9 @@
 <?php
+include('config.php'); 
+
+
+$stmt = $conn->query("SELECT * FROM inventory ORDER BY created_at DESC");
+$inventory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 session_start();
 
 // Initialize inventory if not set (only on the first page load or session reset)
