@@ -7,42 +7,42 @@ if (!isset($_SESSION['tasks'])) {
 }
 
 // Add task logic (submit form with POST)
-if (isset($_POST['addTask'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['addTask'])) {
     $taskText = trim($_POST['taskInput']);
-    if ($taskText !== "") {
+    if (!empty($taskText)) { // Check if task is not empty
         $_SESSION['tasks'][] = ['task' => $taskText, 'completed' => false];
         // Redirect to avoid resubmission on refresh
-        header("Location: " . $_SERVER['PHP_SELF']);
+        header("Location: " . htmlspecialchars($_SERVER['PHP_SELF']));
         exit(); // Ensure no further code is executed
     }
 }
 
 // Mark task as completed
 if (isset($_GET['complete'])) {
-    $index = (int)$_GET['complete'];
-    if (isset($_SESSION['tasks'][$index])) {
+    $index = filter_var($_GET['complete'], FILTER_VALIDATE_INT); // Validate index
+    if ($index !== false && isset($_SESSION['tasks'][$index])) {
         $_SESSION['tasks'][$index]['completed'] = true;
     }
     // Redirect after completing a task
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location: " . htmlspecialchars($_SERVER['PHP_SELF']));
     exit();
 }
 
 // Delete task
 if (isset($_GET['delete'])) {
-    $index = (int)$_GET['delete'];
-    if (isset($_SESSION['tasks'][$index])) {
+    $index = filter_var($_GET['delete'], FILTER_VALIDATE_INT); // Validate index
+    if ($index !== false && isset($_SESSION['tasks'][$index])) {
         unset($_SESSION['tasks'][$index]);
         $_SESSION['tasks'] = array_values($_SESSION['tasks']); // Reindex array
     }
     // Redirect after deleting a task
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location: " . htmlspecialchars($_SERVER['PHP_SELF']));
     exit();
 }
 
 // Pagination setup: Limit to 6 entries per page
-$tasksPerPage = 6; // Limit to 6 tasks per page
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$tasksPerPage = 6;
+$page = isset($_GET['page']) ? max(1, filter_var($_GET['page'], FILTER_VALIDATE_INT)) : 1; // Ensure page is a positive integer
 $totalTasks = count($_SESSION['tasks']);
 $totalPages = ceil($totalTasks / $tasksPerPage);
 $startIndex = ($page - 1) * $tasksPerPage;
@@ -51,12 +51,12 @@ $tasksToShow = array_slice($_SESSION['tasks'], $startIndex, $tasksPerPage);
 
 <?php include('header.php'); ?>
 
-<body style="overflow: hidden;"> <!-- Add this line to prevent scrollbars -->
+<body style="overflow: hidden;"> <!-- Prevent scrollbars -->
     <div class="container-fluid position-relative d-flex p-0" style="height: 100vh; overflow: hidden;">
         <!-- Spinner Start -->
         <div id="spinner" class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
             <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-                <span class="sr-only">Loading...</span>
+                <span class="visually-hidden">Loading...</span>
             </div>
         </div>
         <!-- Spinner End -->
@@ -121,26 +121,20 @@ $tasksToShow = array_slice($_SESSION['tasks'], $startIndex, $tasksPerPage);
                                         <span class="task-text" style="color: <?= $task['completed'] ? 'white' : 'black' ?>"><?= htmlspecialchars($task['task']) ?></span>
                                         <div class="d-flex gap-2">
                                             <?php if (!$task['completed']): ?>
-                                                <a href="?complete=<?= $index ?>" class="btn btn-success btn-sm">Complete</a>
+                                                <a href="?complete=<?= $startIndex + $index ?>" class="btn btn-success btn-sm">Complete</a>
                                             <?php endif; ?>
-                                            <a href="?delete=<?= $index ?>" class="btn btn-danger btn-sm">Delete</a>
+                                            <a href="?delete=<?= $startIndex + $index ?>" class="btn btn-danger btn-sm">Delete</a>
                                         </div>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
 
-                            <!-- Pagination Links with Page Numbers and "Entries" Display -->
                             <div class="d-flex justify-content-between mt-3">
-                                <?php if ($totalPages > 1): ?> <!-- Only show pagination if more than 1 page -->
+                                <?php if ($totalPages > 1): ?>
                                     <?php if ($page > 1): ?>
                                         <a href="?page=<?= $page - 1 ?>" class="btn btn-secondary">Previous</a>
                                     <?php endif; ?>
-
-                                    <!-- Display Current Page, Total Pages, and Entries Per Page -->
-                                    <span class="align-self-center">
-                                        Page <?= $page ?> of <?= $totalPages ?> (<?= $tasksPerPage ?> entries per page)
-                                    </span>
-
+                                    <span class="align-self-center">Page <?= $page ?> of <?= $totalPages ?></span>
                                     <?php if ($page < $totalPages): ?>
                                         <a href="?page=<?= $page + 1 ?>" class="btn btn-secondary">Next</a>
                                     <?php endif; ?>
@@ -162,7 +156,6 @@ $tasksToShow = array_slice($_SESSION['tasks'], $startIndex, $tasksPerPage);
     <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@5.11.2/main.min.js"></script>
 
     <script>
-        // FullCalendar Setup
         document.addEventListener('DOMContentLoaded', function() {
             const calendarEl = document.getElementById('calendar');
             const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -171,21 +164,15 @@ $tasksToShow = array_slice($_SESSION['tasks'], $startIndex, $tasksPerPage);
                     const date = info.dateStr;
                     const eventTitle = prompt("Add a note for " + date);
                     if (eventTitle) {
-                        // Add a note to the clicked date
                         calendar.addEvent({
                             title: eventTitle,
                             start: date,
-                            allDay: true,
-                            editable: true
+                            allDay: true
                         });
                     }
                 },
                 events: [
-                    {
-                        title: 'Sample Event',
-                        start: '2024-11-10',
-                        allDay: true
-                    }
+                    { title: 'Sample Event', start: '2024-11-10', allDay: true }
                 ]
             });
             calendar.render();
