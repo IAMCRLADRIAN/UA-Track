@@ -1,11 +1,16 @@
 <?php
-$dsn = 'mysql:host=localhost;dbname=ClinicDashboard';
-$username = 'root';
-$password = 'admin123';
+
+$host = 'localhost';        
+$dbname = 'ClinicDashboard'; 
+$username = 'root';         
+$password = '';             
+
+
 try {
-    $pdo = new PDO($dsn, $username, $password);
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+   
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
+    die("Connection failed: " . $e->getMessage());
 }
 ?>
