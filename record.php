@@ -1,8 +1,9 @@
 <?php
 
-include 'db_connection.php';
-
-
+if (!file_exists('../db/db_connection.php')) {
+    die("Error: 'db_connection.php' not found. Please check the file path.");
+}
+include '../db/db_connection.php';
 try {
     $sql = "
         SELECT Visits.VisitID, Students.FirstName, Students.LastName, Departments.Name AS DepartmentName, 
