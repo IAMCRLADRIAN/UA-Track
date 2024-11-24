@@ -1,15 +1,11 @@
 <?php
-include('config.php'); 
+include('config.php'); // Include the database connection
 
-
-$stmt = $conn->query("SELECT * FROM inventory ORDER BY created_at DESC");
-$inventory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 session_start();
 
-// Initialize inventory if not set (only on the first page load or session reset)
-if (!isset($_SESSION['inventory'])) {
-    $_SESSION['inventory'] = [];
-}
+// Fetch inventory items from the database
+$stmt = $pdo->query("SELECT * FROM Inventory ORDER BY created_at DESC");
+$inventory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Handle add and edit inventory items
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -20,22 +16,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_POST['editIndex'])) {
             // Edit existing item
             $index = $_POST['editIndex'];
-            $_SESSION['inventory'][$index] = [
-                'productName' => htmlspecialchars($_POST['productName']),
-                'availableQty' => (int)$_POST['availableQty'],
-                'totalQty' => (int)$_POST['totalQty'],
-            ];
+
+            $sql = "UPDATE Inventory SET product_name = ?, available_qty = ?, total_qty = ? WHERE id = ?";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                htmlspecialchars($_POST['productName']),
+                (int)$_POST['availableQty'],
+                (int)$_POST['totalQty'],
+                $index
+            ]);
         } else {
             // Add new item
-            $newItem = [
-                'productName' => htmlspecialchars($_POST['productName']),
-                'availableQty' => (int)$_POST['availableQty'],
-                'totalQty' => (int)$_POST['totalQty'],
-            ];
-            $_SESSION['inventory'][] = $newItem;
+            $sql = "INSERT INTO Inventory (product_name, available_qty, total_qty) VALUES (?, ?, ?)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                htmlspecialchars($_POST['productName']),
+                (int)$_POST['availableQty'],
+                (int)$_POST['totalQty']
+            ]);
         }
 
-        // Redirect to avoid form resubmission, and keep the page number
+        // Redirect to avoid form resubmission
         header("Location: " . $_SERVER['PHP_SELF'] . "?page=" . (isset($_GET['page']) ? $_GET['page'] : 1));
         exit();
     }
@@ -44,34 +45,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // Handle delete operation
 if (isset($_GET['delete'])) {
     $indexToDelete = (int)$_GET['delete'];
-    if (isset($_SESSION['inventory'][$indexToDelete])) {
-        unset($_SESSION['inventory'][$indexToDelete]);
-        $_SESSION['inventory'] = array_values($_SESSION['inventory']); // Reindex array
-    }
+    $sql = "DELETE FROM Inventory WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$indexToDelete]);
+
+    // Redirect after deletion
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
 }
 
 // Handle edit operation: retrieve item to be edited
 $editItem = null;
 if (isset($_GET['edit'])) {
     $indexToEdit = (int)$_GET['edit'];
-    if (isset($_SESSION['inventory'][$indexToEdit])) {
-        $editItem = $_SESSION['inventory'][$indexToEdit];
-    }
+    $sql = "SELECT * FROM Inventory WHERE id = ?";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$indexToEdit]);
+    $editItem = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
 // Pagination variables
 $itemsPerPage = 10;
-$totalItems = count($_SESSION['inventory']);
+$totalItems = count($inventory);
 $totalPages = ceil($totalItems / $itemsPerPage);
 $currentPage = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 
-// Validate current page
 if ($currentPage < 1) $currentPage = 1;
 if ($currentPage > $totalPages) $currentPage = $totalPages;
 
-// Calculate offset for slicing
 $offset = ($currentPage - 1) * $itemsPerPage;
-$paginatedItems = array_slice($_SESSION['inventory'], $offset, $itemsPerPage);
+$paginatedItems = array_slice($inventory, $offset, $itemsPerPage);
 ?>
 
 <!DOCTYPE html>
@@ -128,15 +131,15 @@ $paginatedItems = array_slice($_SESSION['inventory'], $offset, $itemsPerPage);
                             <tbody>
                                 <?php foreach ($paginatedItems as $index => $item): ?>
                                     <tr>
-                                        <th scope="row" class="text-white"><?php echo $item['productName']; ?></th>
-                                        <td class="text-white"><?php echo $item['availableQty']; ?></td>
-                                        <td class="text-white"><?php echo $item['totalQty']; ?></td>
+                                        <th scope="row" class="text-white"><?php echo $item['product_name']; ?></th>
+                                        <td class="text-white"><?php echo $item['available_qty']; ?></td>
+                                        <td class="text-white"><?php echo $item['total_qty']; ?></td>
                                         <td class="text-white">
                                             <!-- Edit button -->
-                                            <a href="?edit=<?php echo $index; ?>&page=<?php echo $currentPage; ?>" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editInventoryModal">Edit</a>
+                                            <a href="?edit=<?php echo $item['id']; ?>&page=<?php echo $currentPage; ?>" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editInventoryModal">Edit</a>
                                             
                                             <!-- Delete button -->
-                                            <a href="?delete=<?php echo $index; ?>&page=<?php echo $currentPage; ?>" class="btn btn-danger btn-sm">Delete</a>
+                                            <a href="?delete=<?php echo $item['id']; ?>&page=<?php echo $currentPage; ?>" class="btn btn-danger btn-sm">Delete</a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -211,15 +214,15 @@ $paginatedItems = array_slice($_SESSION['inventory'], $offset, $itemsPerPage);
                     <input type="hidden" name="editIndex" value="<?php echo isset($editItem) ? $_GET['edit'] : ''; ?>">
                     <div class="mb-3">
                         <label for="productName" class="form-label">Medicine Name</label>
-                        <input type="text" class="form-control" id="productName" name="productName" value="<?php echo isset($editItem) ? $editItem['productName'] : ''; ?>" required>
+                        <input type="text" class="form-control" id="productName" name="productName" value="<?php echo isset($editItem) ? $editItem['product_name'] : ''; ?>" required>
                     </div>
                     <div class="mb-3">
                         <label for="availableQty" class="form-label">Available Quantity</label>
-                        <input type="number" class="form-control" id="availableQty" name="availableQty" value="<?php echo isset($editItem) ? $editItem['availableQty'] : ''; ?>" required>
+                        <input type="number" class="form-control" id="availableQty" name="availableQty" value="<?php echo isset($editItem) ? $editItem['available_qty'] : ''; ?>" required>
                     </div>
                     <div class="mb-3">
                         <label for="totalQty" class="form-label">Total Quantity</label>
-                        <input type="number" class="form-control" id="totalQty" name="totalQty" value="<?php echo isset($editItem) ? $editItem['totalQty'] : ''; ?>" required>
+                        <input type="number" class="form-control" id="totalQty" name="totalQty" value="<?php echo isset($editItem) ? $editItem['total_qty'] : ''; ?>" required>
                     </div>
                     <button type="submit" class="btn btn-warning w-100">Update Item</button>
                 </form>

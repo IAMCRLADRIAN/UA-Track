@@ -1,52 +1,21 @@
 <?php
-session_start(); // Start session to store tasks
+include('config.php'); // Include the database connection
 
-// Initialize tasks array in session if not already set
-if (!isset($_SESSION['tasks'])) {
-    $_SESSION['tasks'] = [];
-}
+// Fetch visit data from the database
+$stmt = $pdo->query("SELECT * FROM Visits ORDER BY visit_date DESC");
+$visits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Add task logic (submit form with POST)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['addTask'])) {
-    $taskText = trim($_POST['taskInput']);
-    if (!empty($taskText)) { // Check if task is not empty
-        $_SESSION['tasks'][] = ['task' => $taskText, 'completed' => false];
-        // Redirect to avoid resubmission on refresh
-        header("Location: " . htmlspecialchars($_SERVER['PHP_SELF']));
-        exit(); // Ensure no further code is executed
-    }
-}
+// Pagination variables
+$itemsPerPage = 10;
+$totalItems = count($visits);
+$totalPages = ceil($totalItems / $itemsPerPage);
+$currentPage = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
 
-// Mark task as completed
-if (isset($_GET['complete'])) {
-    $index = filter_var($_GET['complete'], FILTER_VALIDATE_INT); // Validate index
-    if ($index !== false && isset($_SESSION['tasks'][$index])) {
-        $_SESSION['tasks'][$index]['completed'] = true;
-    }
-    // Redirect after completing a task
-    header("Location: " . htmlspecialchars($_SERVER['PHP_SELF']));
-    exit();
-}
+if ($currentPage < 1) $currentPage = 1;
+if ($currentPage > $totalPages) $currentPage = $totalPages;
 
-// Delete task
-if (isset($_GET['delete'])) {
-    $index = filter_var($_GET['delete'], FILTER_VALIDATE_INT); // Validate index
-    if ($index !== false && isset($_SESSION['tasks'][$index])) {
-        unset($_SESSION['tasks'][$index]);
-        $_SESSION['tasks'] = array_values($_SESSION['tasks']); // Reindex array
-    }
-    // Redirect after deleting a task
-    header("Location: " . htmlspecialchars($_SERVER['PHP_SELF']));
-    exit();
-}
-
-// Pagination setup: Limit to 6 entries per page
-$tasksPerPage = 6;
-$page = isset($_GET['page']) ? max(1, filter_var($_GET['page'], FILTER_VALIDATE_INT)) : 1; // Ensure page is a positive integer
-$totalTasks = count($_SESSION['tasks']);
-$totalPages = ceil($totalTasks / $tasksPerPage);
-$startIndex = ($page - 1) * $tasksPerPage;
-$tasksToShow = array_slice($_SESSION['tasks'], $startIndex, $tasksPerPage);
+$offset = ($currentPage - 1) * $itemsPerPage;
+$paginatedVisits = array_slice($visits, $offset, $itemsPerPage);
 ?>
 
 <?php include('header.php'); ?>
