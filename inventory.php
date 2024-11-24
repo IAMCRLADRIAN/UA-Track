@@ -9,11 +9,11 @@ $inventory = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Handle add and edit inventory items
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    if (isset($_POST['productName']) && isset($_POST['availableQty']) && isset($_POST['totalQty']) 
+    if (isset($_POST['productName']) && isset($_POST['availableQty']) && isset($_POST['totalQty'])
         && !empty($_POST['productName']) && !empty($_POST['availableQty']) && !empty($_POST['totalQty'])) {
 
         // Check if this is an edit or add operation
-        if (isset($_POST['editIndex'])) {
+        if (isset($_POST['editIndex']) && !empty($_POST['editIndex'])) {
             // Edit existing item
             $index = $_POST['editIndex'];
 
@@ -25,6 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 (int)$_POST['totalQty'],
                 $index
             ]);
+
+            // Redirect after update to avoid form resubmission
+            header("Location: inventory.php?page=" . (isset($_GET['page']) ? $_GET['page'] : 1));
+            exit(); // Make sure to exit after redirection
         } else {
             // Add new item
             $sql = "INSERT INTO Inventory (product_name, available_qty, total_qty) VALUES (?, ?, ?)";
@@ -34,11 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 (int)$_POST['availableQty'],
                 (int)$_POST['totalQty']
             ]);
-        }
 
-        // Redirect to avoid form resubmission
-        header("Location: " . $_SERVER['PHP_SELF'] . "?page=" . (isset($_GET['page']) ? $_GET['page'] : 1));
-        exit();
+            // Redirect after adding
+            header("Location: inventory.php?page=" . (isset($_GET['page']) ? $_GET['page'] : 1));
+            exit();
+        }
     }
 }
 
@@ -115,7 +119,10 @@ $paginatedItems = array_slice($inventory, $offset, $itemsPerPage);
                 <div class="bg-success rounded p-4">
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <h3 class="mb-0">Inventory</h3>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">Add Inventory</button>
+                        <div>
+                            <!-- Add Button -->
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">Add Inventory</button>
+                        </div>
                     </div>
                     <h6>Dashboard / Inventory</h6>
                     <div class="table-responsive">
@@ -136,8 +143,7 @@ $paginatedItems = array_slice($inventory, $offset, $itemsPerPage);
                                         <td class="text-white"><?php echo $item['total_qty']; ?></td>
                                         <td class="text-white">
                                             <!-- Edit button -->
-                                            <a href="?edit=<?php echo $item['id']; ?>&page=<?php echo $currentPage; ?>" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editInventoryModal">Edit</a>
-                                            
+                                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editInventoryModal" data-id="<?php echo $item['id']; ?>" data-name="<?php echo $item['product_name']; ?>" data-available="<?php echo $item['available_qty']; ?>" data-total="<?php echo $item['total_qty']; ?>">Edit</button>
                                             <!-- Delete button -->
                                             <a href="?delete=<?php echo $item['id']; ?>&page=<?php echo $currentPage; ?>" class="btn btn-danger btn-sm">Delete</a>
                                         </td>
@@ -171,68 +177,86 @@ $paginatedItems = array_slice($inventory, $offset, $itemsPerPage);
         <!-- Content End -->
     </div>
 
-<!-- Add Inventory Modal -->
-<div class="modal fade" id="addInventoryModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-black">Add Inventory Item</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="">
-                    <div class="mb-3">
-                        <label for="productName" class="form-label">Medicine Name</label>
-                        <input type="text" class="form-control" id="productName" name="productName" required>
+    <!-- Add Inventory Modal -->
+    <div class="modal fade" id="addInventoryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-black">Add Inventory</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="inventory.php" method="POST">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="productName" name="productName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="availableQty" class="form-label">Available Quantity</label>
+                            <input type="number" class="form-control" id="availableQty" name="availableQty" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="totalQty" class="form-label">Total Quantity</label>
+                            <input type="number" class="form-control" id="totalQty" name="totalQty" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Item</button>
                     </div>
-                    <div class="mb-3">
-                        <label for="availableQty" class="form-label">Available Quantity</label>
-                        <input type="number" class="form-control" id="availableQty" name="availableQty" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="totalQty" class="form-label">Total Quantity</label>
-                        <input type="number" class="form-control" id="totalQty" name="totalQty" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Add Item</button>
                 </form>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Edit Inventory Modal -->
-<div class="modal fade" id="editInventoryModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-black">Edit Inventory Item</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="">
-                    <!-- Hidden field for edit index -->
-                    <input type="hidden" name="editIndex" value="<?php echo isset($editItem) ? $_GET['edit'] : ''; ?>">
-                    <div class="mb-3">
-                        <label for="productName" class="form-label">Medicine Name</label>
-                        <input type="text" class="form-control" id="productName" name="productName" value="<?php echo isset($editItem) ? $editItem['product_name'] : ''; ?>" required>
+    <!-- Edit Inventory Modal -->
+    <div class="modal fade" id="editInventoryModal" tabindex="-1" aria-labelledby="editInventoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editInventoryModalLabel">Edit Inventory</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="inventory.php" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" id="editIndex" name="editIndex">
+                        <div class="mb-3">
+                            <label for="editProductName" class="form-label">Product Name</label>
+                            <input type="text" class="form-control" id="editProductName" name="productName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAvailableQty" class="form-label">Available Quantity</label>
+                            <input type="number" class="form-control" id="editAvailableQty" name="availableQty" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editTotalQty" class="form-label">Total Quantity</label>
+                            <input type="number" class="form-control" id="editTotalQty" name="totalQty" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning">Update Item</button>
                     </div>
-                    <div class="mb-3">
-                        <label for="availableQty" class="form-label">Available Quantity</label>
-                        <input type="number" class="form-control" id="availableQty" name="availableQty" value="<?php echo isset($editItem) ? $editItem['available_qty'] : ''; ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="totalQty" class="form-label">Total Quantity</label>
-                        <input type="number" class="form-control" id="totalQty" name="totalQty" value="<?php echo isset($editItem) ? $editItem['total_qty'] : ''; ?>" required>
-                    </div>
-                    <button type="submit" class="btn btn-warning w-100">Update Item</button>
                 </form>
             </div>
         </div>
     </div>
-</div>
 
-<?php include('footer.php'); ?>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 
-<script src="js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Pre-fill the edit modal with the selected item's data
+        const editButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
+        editButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                const availableQty = this.getAttribute('data-available');
+                const totalQty = this.getAttribute('data-total');
+
+                // Set the hidden field and form values
+                document.getElementById('editIndex').value = id;
+                document.getElementById('editProductName').value = name;
+                document.getElementById('editAvailableQty').value = availableQty;
+                document.getElementById('editTotalQty').value = totalQty;
+            });
+        });
+    </script>
 </body>
 </html>
